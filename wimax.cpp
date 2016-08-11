@@ -175,8 +175,13 @@ void SubscriberStation::display(int r){
 	}     
 }
 
+/*
+ * BaseStation which manages all the calls and bandwidth
+ *
+ */
 class BaseStation{
 	private:
+		int totalSlots;
 		int numberOfSubscriberStation;
 		priority_queue<Request> ugs;
 		priority_queue<Request> rtps;
@@ -191,11 +196,23 @@ class BaseStation{
 		priority_queue<Request> getRequest(priority_queue<Request> r,priority_queue<Request> temp);
 		void getPendingRequest();
 		void displayPendingRequest();
+		void setTotalSlots();
+		int  getTotalSlots();
+		void allocateBandwidth();
+//		void displayPendingRequest();
 	//	void checkTraffic();
 	//	float watRequest();
 	//	allocateBandwidth();
 };
 
+
+void BaseStation::setTotalSlots(){
+	totalSlots = 300;
+}
+
+int BaseStation::getTotalSlots(){
+	return totalSlots;
+}
 
 void BaseStation::displayPendingRequest(){
 	priority_queue<Request> temp;
@@ -330,12 +347,50 @@ void BaseStation:: getTrafficRequest(){
 
 }
 
+
+
+void BaseStation::allocateBandwidth(){
+	int ts,sum=0;
+	float temp;
+	setTotalSlots();	
+	ts = getTotalSlots();
+	while(sum<=ts && !pendingRequest.empty()){
+        	Request t = pendingRequest.top();
+		temp = t.datarate;
+		if(temp>=14.2875 && temp<=21.4285){
+			sum+=2;
+		}
+		if(temp>=21.4285 && temp<=28.5714){
+			sum+=2;
+		}
+		if(temp>=28.5714 && temp<=42.8570){
+			sum+=4;
+		}
+		
+		if(temp>=42.8570 && temp<=57.1428){
+			sum+=6;
+		}
+		if(temp>=57.1428 && temp<=64.2857){
+			sum+=6;
+		}
+		
+		if(sum<=300){
+			pendingRequest.pop();		
+		}
+		
+	}		
+cout<<"Slots wasted: "<<ts-sum<<endl;
+}
+
 int main(){
  
 BaseStation bs;
 bs.getTrafficRequest();
 bs.getPendingRequest();
 //bs.display(0);
+bs.displayPendingRequest();
+bs.allocateBandwidth();
+cout<<"Requests Available for next Frame: "<<endl;
 bs.displayPendingRequest();
   return 0;
 }

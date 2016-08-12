@@ -14,10 +14,10 @@ public:
         int type;
 	float  wt;
 	float near;
-	float score;
-       
+       	float totalScore;
+	float price;
 	Request(){}
-	Request(string s,string d,float datar,float snr,int at,int dl,int ty){
+	Request(string s,string d,float datar,float snr,int at,int dl,int ty,float pric){
 		sender = s;
 		destination = d;
 		datarate = datar;
@@ -25,7 +25,9 @@ public:
 		arrivalTime = at;
 		deadline = dl;		
 		type = ty;
+		price = pric;
 		near = sinr*type;
+		totalScore = near + price;
 		//wt = 0.5*()/();
 	}
 };
@@ -34,7 +36,7 @@ public:
  * To Add a Priority to deadline for the priority
  */
 bool operator<(const Request& a, const Request& b) {
-    return a.near < b.near;
+    return a.totalScore < b.totalScore;
 }
 
 class SubscriberStation{
@@ -47,6 +49,7 @@ class SubscriberStation{
 		int at;
 		int dl;
 		int requestType;
+		int p;
 	public:
 		priority_queue<Request> ugs;
 		priority_queue<Request> rtps;
@@ -122,13 +125,15 @@ void SubscriberStation:: getTrafficData(int traffic){
 		cin>>dr;
                  cout<<"Enter the sinr ratio:\n";
 		cin>>snr;
-		cout<<"Enter the arrival time:\n";
-		cin>>at;
-		cout<<"Enter the deadline:\n";
+		//cout<<"Enter the arrival time:\n";
+		at = time(0);
+		cout<<"Enter the deadline in seconds(just for trial):\n";
 		cin>>dl;
-		
+		dl = dl+time(0);
+		cout<<"Enter price:\n";
+		cin>>p;
 		if(snr>=5.0){
-		 	temp.push(Request(s,d,dr,snr,at,dl,getRequestType()));
+		 	temp.push(Request(s,d,dr,snr,at,dl,getRequestType(),p));
 		}
 	}	
 
@@ -199,12 +204,25 @@ class BaseStation{
 		void setTotalSlots();
 		int  getTotalSlots();
 		void allocateBandwidth();
+		int calculateWaitTime(Request r);
+		void updateTotalScore();		
 //		void displayPendingRequest();
 	//	void checkTraffic();
 	//	float watRequest();
 	//	allocateBandwidth();
 };
 
+
+
+int BaseStation::calculateWaitTime(Request r){
+
+	int age;
+	float score;
+	age = time(0)-r.arrivalTime;
+	r.deadline = r.deadline-time(0);
+	score = 0.5*age + 0.5*r.deadline;
+	return score;
+}
 
 void BaseStation::setTotalSlots(){
 	totalSlots = 300;
@@ -220,7 +238,7 @@ void BaseStation::displayPendingRequest(){
 	while(!temp.empty()){
 		Request t;
 		t = temp.top();
-		cout<<"Sender: "<<t.sender<<" Receiver: "<<t.destination<<"Near: "<<t.score<<"Deadline: "<<t.deadline<<endl;
+		cout<<"Sender: "<<t.sender<<" Receiver: "<<t.destination<<"Near: "<<t.totalScore<<"Deadline: "<<t.deadline<<endl;
 		temp.pop();
 	}	
 }
@@ -382,6 +400,21 @@ void BaseStation::allocateBandwidth(){
 cout<<"Slots wasted: "<<ts-sum<<endl;
 }
 
+
+void BaseStation::updateTotalScore(){
+	priority_queue<Request> temp;
+	temp = pendingRequest;
+	while(!pendingRequest.empty()){
+		Request t;
+		t= pendingRequest.top();
+		pendingRequest.pop();
+		t.totalScore = t.price+t.near+calculateWaitTime(t);
+		temp.push(t);
+		 	
+	}	
+pendingRequest = temp;
+}
+
 int main(){
  
 BaseStation bs;
@@ -389,6 +422,7 @@ bs.getTrafficRequest();
 bs.getPendingRequest();
 //bs.display(0);
 bs.displayPendingRequest();
+bs.updateTotalScore();
 bs.allocateBandwidth();
 cout<<"Requests Available for next Frame: "<<endl;
 bs.displayPendingRequest();

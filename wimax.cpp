@@ -375,6 +375,7 @@ void BaseStation::allocateBandwidth(){
 	while(sum<=ts && !pendingRequest.empty()){
         	Request t = pendingRequest.top();
 		temp = t.datarate;
+
 		if(temp>=14.2875 && temp<=21.4285){
 			sum+=2;
 		}
@@ -392,9 +393,9 @@ void BaseStation::allocateBandwidth(){
 			sum+=6;
 		}
 		
-		if(sum<=300){
+	
 			pendingRequest.pop();		
-		}
+		
 		
 	}		
 cout<<"Slots wasted: "<<ts-sum<<endl;
@@ -408,7 +409,7 @@ void BaseStation::updateTotalScore(){
 		Request t;
 		t= pendingRequest.top();
 		pendingRequest.pop();
-		t.totalScore = t.price+t.near+calculateWaitTime(t);
+		t.totalScore = t.price;//+t.near+calculateWaitTime(t);
 		temp.push(t);
 		 	
 	}	

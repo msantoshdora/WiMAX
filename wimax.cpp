@@ -1,5 +1,6 @@
 #include<bits/stdc++.h>
 
+#define m 64
 using namespace std;
 
 class Request{
@@ -375,15 +376,16 @@ void BaseStation::allocateBandwidth(){
 	while(sum<=ts && !pendingRequest.empty()){
         	Request t = pendingRequest.top();
 		temp = t.datarate;
-
+		sum +=temp*1024/log2(m);
+/*
 		if(temp>=14.2875 && temp<=21.4285){
-			sum+=2;
+			sum+=(300/log2(m));
 		}
 		if(temp>=21.4285 && temp<=28.5714){
-			sum+=2;
+			sum+=(300/log2(m));
 		}
 		if(temp>=28.5714 && temp<=42.8570){
-			sum+=4;
+			sum+=(300/log2(m));
 		}
 		
 		if(temp>=42.8570 && temp<=57.1428){
@@ -393,23 +395,33 @@ void BaseStation::allocateBandwidth(){
 			sum+=6;
 		}
 		
-	
+*/	
 			pendingRequest.pop();		
-		
-		
-	}		
+			
+	}	
+	
 cout<<"Slots wasted: "<<ts-sum<<endl;
 }
 
 
 void BaseStation::updateTotalScore(){
 	priority_queue<Request> temp;
+	float w1,w2,w3,w4,sum,a1;  //w1 = sinr w2 = price w3= deadline w4=type
 	temp = pendingRequest;
+	
 	while(!pendingRequest.empty()){
 		Request t;
 		t= pendingRequest.top();
 		pendingRequest.pop();
-		t.totalScore = t.price;//+t.near+calculateWaitTime(t);
+		
+		sum = t.price + t.sinr + calculateWaitTime(t)+ t.type;
+		w1 = t.sinr/sum;
+		w2 = t.price/sum;
+		w3 = calculateWaitTime(t)/sum;
+		w4  = 1 - (w1+w2+w3);
+		t.totalScore = w1*t.sinr + w2*t.price + w3*calculateWaitTime(t) + w4*t.type;
+
+	
 		temp.push(t);
 		 	
 	}	

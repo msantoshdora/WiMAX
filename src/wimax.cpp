@@ -1,5 +1,6 @@
 #include<bits/stdc++.h>
 
+
 #define m 64
 using namespace std;
 
@@ -77,9 +78,9 @@ void SubscriberStation::setRequestType(int r){
 		break;
 	case 2: requestType = 8;
 		break;
-	case 3: requestType = 6;
+	case 3: requestType = 7;
 		break;
-	case 4: requestType = 3;
+	case 4: requestType = 6;
 		break;
 	}
 }

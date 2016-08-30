@@ -2,6 +2,7 @@
 
 
 #define m 64
+#define FRAMESLOTS 300
 using namespace std;
 
 class Request{
@@ -30,7 +31,7 @@ public:
 		price = pric;
 		near = sinr*type;
 		totalScore = near + price;
-		//wt = 0.5*()/();
+		
 	}
 };
 
@@ -41,6 +42,9 @@ bool operator<(const Request& a, const Request& b) {
     return a.totalScore < b.totalScore;
 }
 
+/**
+ * It is the Relay Station,which relays the request to base Station.
+ */
 class SubscriberStation{
 	private:
 		int numberOfRequests;
@@ -66,10 +70,16 @@ class SubscriberStation{
 		int getRequestType();
 };
 
+/**
+ * To get the request Type,if it is UGS,RTPS,NRTPS,BE,etc.
+ */
 int SubscriberStation::getRequestType(){
 	return requestType;
 }
 
+/**
+ * It gives an integer value to the request type.
+ */
 void SubscriberStation::setRequestType(int r){
 	switch(r){
 	case 0: requestType = 10;
@@ -85,6 +95,9 @@ void SubscriberStation::setRequestType(int r){
 	}
 }
 
+/**
+ * To get a new request
+ */
 void SubscriberStation::getCurrentRequest(){
 	for(int i=0;i<5;i++){
 		switch(i){
@@ -113,7 +126,9 @@ void SubscriberStation::getCurrentRequest(){
         }
 }
 
-
+/**
+ * To get a traffic data
+ */
 void SubscriberStation:: getTrafficData(int traffic){
 	int serial=1;
 	priority_queue<Request> temp;
@@ -136,6 +151,8 @@ void SubscriberStation:: getTrafficData(int traffic){
 		cin>>p;
 		if(snr>=5.0){
 		 	temp.push(Request(s,d,dr,snr,at,dl,getRequestType(),p));
+		}else{
+			cout<<"Request is discarded because of poor channel quality\n";
 		}
 	}	
 
@@ -157,6 +174,7 @@ void SubscriberStation:: getTrafficData(int traffic){
 	}
 	
 }
+
 
 void SubscriberStation::display(int r){
  	priority_queue<Request> obj;
@@ -208,10 +226,7 @@ class BaseStation{
 		void allocateBandwidth();
 		int calculateWaitTime(Request r);
 		void updateTotalScore();		
-//		void displayPendingRequest();
-	//	void checkTraffic();
-	//	float watRequest();
-	//	allocateBandwidth();
+
 };
 
 
@@ -227,7 +242,7 @@ int BaseStation::calculateWaitTime(Request r){
 }
 
 void BaseStation::setTotalSlots(){
-	totalSlots = 300;
+	totalSlots = FRAMESLOTS;
 }
 
 int BaseStation::getTotalSlots(){
@@ -338,16 +353,7 @@ void BaseStation:: getTrafficRequest(){
 			s1 = ss.be;
 			break; 
 		}
-/*
-		while(!s1.empty()){
-			Request t;
-			t = s1.top();
-			s1.pop();
-			temp.push(t);
-	
-		}
-		
-*/		switch(i){
+		switch(i){
 		 case 0: ugs = getRequest(ugs,s1);
 			break;
 		 case 1: rtps = getRequest(rtps,s1);

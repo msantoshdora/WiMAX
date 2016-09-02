@@ -122,6 +122,17 @@ void SubscriberStation::getCurrentRequest(){
 			break;	
 		}
 		cin>>numberOfRequests;
+		/*
+ 		*  Check if the input is in correct Format or not
+ 		* 	
+ 		*/
+		while(cin.fail()){
+			cout<<"Wrong Input!!!\n";
+			cin.clear();
+			cin.ignore(256,'\n');
+			cout<<"Enter Again:\n";
+			cin>>numberOfRequests;
+		}
 		getTrafficData(i);
         }
 }
@@ -252,10 +263,11 @@ int BaseStation::getTotalSlots(){
 void BaseStation::displayPendingRequest(){
 	priority_queue<Request> temp;
 	temp = pendingRequest;
+       cout<<"Source\t"<<"Receiver\t"<<"Score\t"<<"Type\t"<<"Deadline\n";
 	while(!temp.empty()){
 		Request t;
 		t = temp.top();
-		cout<<"Sender: "<<t.sender<<" Receiver: "<<t.destination<<"Near: "<<t.totalScore<<"Deadline: "<<t.deadline<<endl;
+cout<<t.sender<<"\t"<<t.destination<<"\t\t"<<t.totalScore<<"\t"<<t.type<<"\t"<<t.deadline<<endl;
 		temp.pop();
 	}	
 }
@@ -383,26 +395,7 @@ void BaseStation::allocateBandwidth(){
 	while(sum<=ts && !pendingRequest.empty()){
         	Request t = pendingRequest.top();
 		temp = t.datarate;
-		sum +=temp*1024/log2(m);
-/*
-		if(temp>=14.2875 && temp<=21.4285){
-			sum+=(300/log2(m));
-		}
-		if(temp>=21.4285 && temp<=28.5714){
-			sum+=(300/log2(m));
-		}
-		if(temp>=28.5714 && temp<=42.8570){
-			sum+=(300/log2(m));
-		}
-		
-		if(temp>=42.8570 && temp<=57.1428){
-			sum+=6;
-		}
-		if(temp>=57.1428 && temp<=64.2857){
-			sum+=6;
-		}
-		
-*/	
+		sum +=temp*1024/log2(m);	
 			pendingRequest.pop();		
 			
 	}	
@@ -414,7 +407,7 @@ cout<<"Slots wasted: "<<ts-sum<<endl;
 void BaseStation::updateTotalScore(){
 	priority_queue<Request> temp;
 	float w1,w2,w3,w4,sum,a1;  //w1 = sinr w2 = price w3= deadline w4=type
-	temp = pendingRequest;
+//	temp = pendingRequest;
 	
 	while(!pendingRequest.empty()){
 		Request t;
@@ -441,10 +434,11 @@ BaseStation bs;
 bs.getTrafficRequest();
 bs.getPendingRequest();
 //bs.display(0);
-bs.displayPendingRequest();
+//bs.displayPendingRequest();
 bs.updateTotalScore();
-bs.allocateBandwidth();
-cout<<"Requests Available for next Frame: "<<endl;
 bs.displayPendingRequest();
+bs.allocateBandwidth();
+//cout<<"Requests Available for next value:\n";
+//bs.displayPendingRequest();
   return 0;
 }

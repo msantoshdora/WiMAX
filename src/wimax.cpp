@@ -68,6 +68,7 @@ class SubscriberStation{
 	        void display(int r);
 		void setRequestType(int r);
 		int getRequestType();
+		
 };
 
 /**
@@ -236,7 +237,8 @@ class BaseStation{
 		int  getTotalSlots();
 		void allocateBandwidth();
 		int calculateWaitTime(Request r);
-		void updateTotalScore();		
+		void updateTotalScore();
+		string assignType(int typ);		
 
 };
 
@@ -263,11 +265,13 @@ int BaseStation::getTotalSlots(){
 void BaseStation::displayPendingRequest(){
 	priority_queue<Request> temp;
 	temp = pendingRequest;
-       cout<<"Source\t"<<"Receiver\t"<<"Score\t"<<"Type\t"<<"Deadline\n";
+       cout<<"Source\t"<<"Receiver\t"<<"Score\t"<<"Type\t"<<"\n";
 	while(!temp.empty()){
 		Request t;
 		t = temp.top();
-cout<<t.sender<<"\t"<<t.destination<<"\t\t"<<t.totalScore<<"\t"<<t.type<<"\t"<<t.deadline<<endl;
+		string request_type;
+		request_type = assignType(t.type);
+cout<<t.sender<<"\t"<<t.destination<<"\t\t"<<t.totalScore<<"\t"<<request_type<<"\t"<<endl;
 		temp.pop();
 	}	
 }
@@ -428,6 +432,20 @@ void BaseStation::updateTotalScore(){
 pendingRequest = temp;
 }
 
+string BaseStation::assignType(int typ){
+	switch(typ){
+	case 10: return "ugs";
+		break;
+	case 9: return "rtps";
+		break;
+	case 8: return "ertps";
+		break;
+	case 7: return "nrtps";
+		break;
+	case 6: return "best effort";
+		break;
+	}
+}
 int main(){
  
 BaseStation bs;
